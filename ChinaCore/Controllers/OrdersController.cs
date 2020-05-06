@@ -38,7 +38,7 @@ namespace ChinaCore.Controllers
 		{
 			_db.Orders.Add(order);
 			_db.SaveChanges();
-			return Ok();
+			return Ok(order);
 		}
 
 		[HttpGet]
@@ -53,6 +53,14 @@ namespace ChinaCore.Controllers
 
 			return Ok(orders);
 		}
+
+        [HttpGet("{id}")]
+        public IActionResult Get(int id)
+        {
+            var order = _db.Orders.FirstOrDefault(x=>x.Id == id);
+
+            return Ok(order);
+        }
 
 		[HttpGet("clearDone")]
 		public IActionResult ClearDone()
