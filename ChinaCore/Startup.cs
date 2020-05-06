@@ -42,11 +42,13 @@ namespace ChinaCore
 
 			services.AddTransient<IMyDataService, MyDataService>();
 
-			//services.AddDbContext<ChinaContext>(c =>
-			//{
-			//	var cs = "Server=localhost;Database=RaveDev1;uid=RaveDev1;pwd=password*8;Connection Timeout=10";
-			//	c.UseSqlServer(cs);
-			//});
+			services.AddDbContext<ChinaContext>(c =>
+			{
+				//var cs = "Server=localhost;Database=China;uid=sa;pwd=password*8;Connection Timeout=10";
+				//c.UseSqlServer(cs);
+
+				c.UseInMemoryDatabase("ChinaDb");
+			});
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

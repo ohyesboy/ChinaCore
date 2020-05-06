@@ -19,12 +19,15 @@ namespace ChinaCore.Controllers
 		private IMyDataService _dataService;
 		private ILogger<OrdersController> _logger;
 		private IConfiguration _config;
+		private ChinaContext _db;
 
 		public OrdersController(
 			IMyDataService dataService,
 			ILogger<OrdersController> logger,
-			IConfiguration config)
+			IConfiguration config,
+			ChinaContext db)
 		{
+			_db = db;
 			_config = config;
 			_logger = logger;
 			_dataService = dataService;
@@ -33,18 +36,16 @@ namespace ChinaCore.Controllers
 		[HttpPost]
 		public IActionResult Post(Order order)
 		{
-			var db = new ChinaContext();
-			db.Orders.Add(order);
-			db.SaveChanges();
+			_db.Orders.Add(order);
+			_db.SaveChanges();
 			return Ok();
 		}
 
 		[HttpGet]
 		public IActionResult Get()
 		{
-			var db = new ChinaContext();
-			db.Database.EnsureCreated();
-			var orders = db.Orders
+			_db.Database.EnsureCreated();
+			var orders = _db.Orders
 				.Include(x=>x.Items)
 				.OrderBy(x=>x.Done)
 				.ThenByDescending(x=>x.Time)
@@ -56,26 +57,22 @@ namespace ChinaCore.Controllers
 		[HttpGet("clearDone")]
 		public IActionResult ClearDone()
 		{
-			var db = new ChinaContext();
-
-			var orders = db.Orders
+			var orders = _db.Orders
 				.Where(x=>x.Done)
 				.ToList();
-			db.RemoveRange(orders);
-			db.SaveChanges();
+			_db.RemoveRange(orders);
+			_db.SaveChanges();
 			return Ok();
 		}
 
 		[HttpGet("done/{id}")]
 		public IActionResult Done(int id)
 		{
-			var db = new ChinaContext();
-
-			var order = db.Orders
+			var order = _db.Orders
 				.First(x => x.Id == id);
 			order.Done = true;
 
-			db.SaveChanges();
+			_db.SaveChanges();
 			return Ok();
 		}
 	}

@@ -23,18 +23,11 @@ namespace ChinaCore
 
 	public class ChinaContext:DbContext
 	{
-		public ChinaContext()
+		public ChinaContext(DbContextOptions options):base(options)
 		{
-			
 		}
+
 		public DbSet<Order> Orders { get; set; }
 
-		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-		{       
-          
-			var cs = "Server=localhost;Database=China;uid=sa;pwd=password*8;Connection Timeout=10";
-			optionsBuilder.UseSqlServer(cs);
-			base.OnConfiguring(optionsBuilder);
-		}
 	}
 }

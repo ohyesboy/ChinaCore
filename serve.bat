@@ -1,0 +1,1 @@
+ChinaCore\bin\Debug\netcoreapp3.1\ChinaCore.exe --urls "http://0.0.0.0:5000"
