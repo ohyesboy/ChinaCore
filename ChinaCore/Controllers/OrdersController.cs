@@ -57,7 +57,7 @@ namespace ChinaCore.Controllers
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-            var order = _db.Orders.FirstOrDefault(x=>x.Id == id);
+            var order = _db.Orders.Include(x=>x.Items).FirstOrDefault(x=>x.Id == id);
 
             return Ok(order);
         }
