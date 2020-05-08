@@ -11,12 +11,14 @@ using Microsoft.Extensions.Logging;
 
 namespace ChinaCore.Controllers
 {
+	
 	[ApiController]
 	[Route("api/[controller]")]
 	[EnableCors("MyPolicy")]
 	public class OrdersController : ControllerBase
 	{
-		private IMyDataService _dataService;
+		private static DateTime LastUpdate = DateTime.Now;
+		  private IMyDataService _dataService;
 		private ILogger<OrdersController> _logger;
 		private IConfiguration _config;
 		private ChinaContext _db;
@@ -36,6 +38,7 @@ namespace ChinaCore.Controllers
 		[HttpPost]
 		public IActionResult Post(Order order)
 		{
+            LastUpdate = DateTime.Now;
 			_db.Orders.Add(order);
 			_db.SaveChanges();
 			return Ok(order);
@@ -51,10 +54,30 @@ namespace ChinaCore.Controllers
 				.ThenByDescending(x=>x.Time)
 				.ToList();
 
-			return Ok(orders);
+			return Ok(new { Time = DateTime.Now, Orders = orders });
 		}
 
-        [HttpGet("{id}")]
+		[HttpPost("refresh")]
+		public IActionResult Refresh(UpdateModel data)
+		{
+			if (data.Time > LastUpdate)
+				return Ok();
+
+			var orders = _db.Orders
+				.Include(x => x.Items)
+				.OrderBy(x => x.Done)
+				.ThenByDescending(x => x.Time)
+				.ToList();
+
+			return Ok(new { Time = DateTime.Now, Orders = orders });
+		}
+
+        public class UpdateModel
+        {
+            public DateTime Time { get; set; }
+        }
+
+		[HttpGet("{id}")]
         public IActionResult Get(int id)
         {
             var order = _db.Orders.Include(x=>x.Items).FirstOrDefault(x=>x.Id == id);
@@ -65,6 +88,7 @@ namespace ChinaCore.Controllers
 		[HttpGet("clearDone")]
 		public IActionResult ClearDone()
 		{
+			LastUpdate = DateTime.Now;
 			var orders = _db.Orders
 				.Where(x=>x.Done)
 				.ToList();
@@ -76,6 +100,7 @@ namespace ChinaCore.Controllers
 		[HttpGet("done/{id}")]
 		public IActionResult Done(int id)
 		{
+			LastUpdate = DateTime.Now;
 			var order = _db.Orders
 				.First(x => x.Id == id);
 			order.Done = true;
